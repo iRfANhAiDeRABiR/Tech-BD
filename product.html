@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Tech Solutions BD</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="img_content/tsb.png">
+    <style>
+        .product-page {
+            padding-top: 30px;
+            padding-bottom: 60px;
+            min-height: 80vh;
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 32px;
+        }
+
+        .breadcrumb a {
+            color: var(--accent-primary);
+            font-weight: 500;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .product-detail {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 60px;
+        }
+
+        @media (max-width: 900px) {
+            .product-detail {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+        }
+
+        .product-image-col {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: var(--shadow-md);
+            backdrop-filter: blur(10px);
+        }
+
+        .product-image-col img,
+        .product-image-col .icon-fallback {
+            width: 100%;
+            max-width: 700px;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.4));
+        }
+
+        .icon-fallback {
+            font-size: 8rem;
+            text-align: center;
+        }
+
+        .badge-large {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--accent-warning);
+            color: #000;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-weight: 800;
+        }
+
+        .product-info-col h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .product-brand {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 24px;
+        }
+
+        .product-brand span {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+
+        .product-price-box {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .price-current {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent-danger);
+        }
+
+        .price-original {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .price-discount {
+            font-size: 0.9rem;
+            color: var(--accent-secondary);
+            font-weight: 700;
+            background: rgba(0, 212, 170, 0.1);
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+        }
+
+        .product-status {
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+            font-weight: 600;
+        }
+
+        .status-in-stock {
+            color: var(--accent-secondary);
+        }
+
+        .feature-box {
+            background: var(--bg-glass);
+            border-left: 4px solid var(--accent-warning);
+            padding: 24px;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            margin-bottom: 32px;
+        }
+
+        .feature-box h3 {
+            font-size: 1.1rem;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .feature-icon {
+            flex-shrink: 0;
+            color: var(--accent-secondary);
+            font-size: 1.1rem;
+        }
+
+        .action-box {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            height: 48px;
+            background: var(--bg-card);
+        }
+
+        .qty-btn {
+            width: 40px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            transition: background 0.2s;
+        }
+
+        .qty-btn:hover {
+            background: var(--bg-glass-hover);
+        }
+
+        .qty-input {
+            width: 50px;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 600;
+            background: transparent;
+            color: var(--text-primary);
+            border: none;
+        }
+
+        .qty-input:focus {
+            outline: none;
+        }
+
+        .btn-add-cart {
+            flex: 1;
+            height: 48px;
+            background: #000;
+            color: #fff;
+            border: 1px solid #333;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-radius: var(--radius-sm);
+            transition: 0.3s;
+        }
+
+        [data-theme="light"] .btn-add-cart {
+            background: #111;
+            border-color: #000;
+        }
+
+        .btn-add-cart:hover {
+            background: #222;
+            transform: translateY(-2px);
+        }
+
+        .btn-buy-now {
+            flex: 1;
+            height: 48px;
+            background: #FFB900;
+            color: #000;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-radius: var(--radius-sm);
+            box-shadow: 0 4px 15px rgba(255, 185, 0, 0.3);
+            transition: 0.3s;
+        }
+
+        .btn-buy-now:hover {
+            background: #E5A600;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 185, 0, 0.4);
+        }
+
+        .meta-info {
+            margin-top: 32px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: grid;
+            gap: 8px;
+        }
+
+        .meta-info span {
+            color: var(--text-secondary);
+        }
+
+        .product-long-description {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .product-long-description h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .product-content-area {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .product-content-area ul,
+        .product-content-area ol {
+            margin-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        .product-content-area p {
+            margin-bottom: 16px;
+        }
+
+        .related-products-section {
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .related-products-section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 24px;
+            font-weight: 700;
+        }
+
+        .related-slider {
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            padding-bottom: 24px;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .related-slider::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .related-slider::-webkit-scrollbar-track {
+            background: var(--bg-glass);
+            border-radius: 10px;
+        }
+
+        .related-slider::-webkit-scrollbar-thumb {
+            background: var(--border-glow);
+            border-radius: 10px;
+        }
+
+        .related-slider::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-primary);
+        }
+
+        .related-slider .product-card {
+            scroll-snap-align: start;
+            min-width: 260px;
+            flex-shrink: 0;
+            margin-bottom: 0;
+            /* Override any grid margins */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation (Reused) -->
+    <header class="header" id="header"
+        style="background: rgba(10, 10, 26, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-color);">
+        <nav class="nav container">
+            <a href="index.html" class="nav__logo">
+                <div class="logo-icon">
+                    <img src="img_content/tsb.png" alt="TSB Logo"
+                        style="height: 32px; width: auto; object-fit: contain;">
+                </div>
+                <div class="logo-text"><span class="logo-name">Tech Solutions</span><span class="logo-tag">BD</span>
+                </div>
+            </a>
+            <div class="nav__menu" id="navMenu">
+                <ul class="nav__list">
+                    <li><a href="index.html#home" class="nav__link">Home</a></li>
+                    <li><a href="index.html#products" class="nav__link">Products</a></li>
+                    <li><a href="index.html#categories" class="nav__link">Categories</a></li>
+                </ul>
+                <button class="nav__close" id="navClose"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg></button>
+            </div>
+            <div class="nav__actions">
+                <button class="nav__search" id="searchBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg></button>
+                <button class="nav__theme" id="themeToggle"><svg class="theme-icon theme-icon--sun" width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5" />
+                        <line x1="12" y1="1" x2="12" y2="3" />
+                        <line x1="12" y1="21" x2="12" y2="23" />
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                        <line x1="1" y1="12" x2="3" y2="12" />
+                        <line x1="21" y1="12" x2="23" y2="12" />
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                    </svg><svg class="theme-icon theme-icon--moon" width="20" height="20" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                    </svg></button>
+                <button class="nav__cart" id="cartBtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1" />
+                        <circle cx="20" cy="21" r="1" />
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                    </svg><span class="cart-count" id="cartCount">0</span></button>
+                <button class="nav__toggle" id="navToggle"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg></button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Search Modal -->
+    <div class="search-modal" id="searchModal">
+        <div class="search-modal__content">
+            <input type="text" class="search-modal__input" id="searchInput"
+                placeholder="Search for software, licenses, subscriptions...">
+            <button class="search-modal__close" id="searchClose"><svg width="24" height="24" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg></button>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-sidebar__header">
+            <h3>Shopping Cart</h3>
+            <button class="cart-sidebar__close" id="cartClose"><svg width="24" height="24" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg></button>
+        </div>
+        <div class="cart-sidebar__items" id="cartItems"></div>
+        <div class="cart-sidebar__footer" id="cartFooter" style="display: none;">
+            <div class="cart-total"><span>Total:</span><span id="cartTotal">৳0</span></div>
+            <button class="btn btn--primary btn--full" id="checkoutBtn">Proceed to Checkout</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="product-page container" id="productDetailContainer">
+        <!-- Rendered by JS -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__bottom" style="border:none; margin-top:0;">
+                <p>&copy; 2026 Tech Solutions BD. All rights reserved.</p>
+                <div style="display: flex; gap: 16px; align-items: center; justify-content: center; margin-top: 8px;">
+                    <a href="tsb-ctrl-9f2m7.html"
+                        style="color: var(--text-muted); font-size: 0.8rem; text-decoration: underline;">Admin
+                        Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <div class="toast__icon">✓</div>
+        <div class="toast__message" id="toastMessage">Added!</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

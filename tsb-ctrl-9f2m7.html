@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Tech Solutions BD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="img_content/tsb.png">
+    
+    <script>
+        (function () {
+            var SESSION_KEY = 'tsb_admin_auth';
+            if (sessionStorage.getItem(SESSION_KEY) !== '1') {
+                document.addEventListener('DOMContentLoaded', function () {
+                    document.getElementById('adminGate').style.display = 'flex';
+                    document.getElementById('adminContent').style.display = 'none';
+                    document.getElementById('adminGateUser').focus();
+                });
+            }
+        })();
+    </script>
+    <style>
+        body {
+            padding-top: 20px;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .table-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            overflow-x: auto;
+            backdrop-filter: blur(10px);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th,
+        td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        tr:hover {
+            background: var(--bg-glass-hover);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-edit {
+            color: var(--accent-secondary);
+        }
+
+        .btn-delete {
+            color: var(--accent-danger);
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-fast);
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-glow);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-primary);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .modal-footer {
+            margin-top: 24px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="adminGate"
+        style="display:none; position:fixed; inset:0; background:rgba(8,8,18,0.98); z-index:99999; flex-direction:column; align-items:center; justify-content:center; font-family:'Inter',sans-serif; backdrop-filter:blur(16px);">
+        <div
+            style="background:linear-gradient(145deg,#1a1a2e,#16213e); border:1px solid rgba(108,99,255,0.35); border-radius:22px; padding:48px 40px; width:90%; max-width:420px; text-align:center; box-shadow:0 32px 80px rgba(0,0,0,0.7);">
+            <div style="font-size:3rem; margin-bottom:14px;">🔐</div>
+            <h2 style="color:#fff; font-size:1.5rem; font-weight:800; margin:0 0 6px;">Admin Login</h2>
+            <p style="color:#7878a0; font-size:0.88rem; margin:0 0 26px;">Restricted area — authorization required</p>
+
+            <div style="display:flex; flex-direction:column; gap:12px; text-align:left;">
+                <div>
+                    <label
+                        style="color:#888; font-size:0.78rem; font-weight:600; letter-spacing:0.05em; display:block; margin-bottom:5px;">USERNAME</label>
+                    <input id="adminGateUser" type="text" placeholder="Enter username" autocomplete="username"
+                        style="width:100%; padding:13px 16px; border-radius:10px; border:1.5px solid rgba(108,99,255,0.3); background:rgba(255,255,255,0.04); color:#fff; font-size:0.95rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
+                        onfocus="this.style.borderColor='#6C63FF'"
+                        onblur="this.style.borderColor='rgba(108,99,255,0.3)'"
+                        onkeydown="if(event.key==='Enter') document.getElementById('adminGateInput').focus()">
+                </div>
+                <div>
+                    <label
+                        style="color:#888; font-size:0.78rem; font-weight:600; letter-spacing:0.05em; display:block; margin-bottom:5px;">PASSWORD</label>
+                    <input id="adminGateInput" type="password" placeholder="Enter password"
+                        autocomplete="current-password"
+                        style="width:100%; padding:13px 16px; border-radius:10px; border:1.5px solid rgba(108,99,255,0.3); background:rgba(255,255,255,0.04); color:#fff; font-size:0.95rem; font-family:inherit; outline:none; box-sizing:border-box; transition:border-color 0.2s;"
+                        onfocus="this.style.borderColor='#6C63FF'"
+                        onblur="this.style.borderColor='rgba(108,99,255,0.3)'"
+                        onkeydown="if(event.key==='Enter') adminGateSubmit()">
+                </div>
+            </div>
+
+            <p id="adminGateError"
+                style="color:#FF6B6B; font-size:0.82rem; margin:12px 0 0; display:none; text-align:center;">Invalid
+                username or password.</p>
+            <p id="adminGateLoading"
+                style="color:#6C63FF; font-size:0.82rem; margin:12px 0 0; display:none; text-align:center;">Verifying...
+            </p>
+
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button onclick="window.location.href='index.html'"
+                    style="flex:1; padding:13px; border-radius:10px; background:transparent; border:1.5px solid rgba(255,255,255,0.12); color:#888; font-weight:600; cursor:pointer; font-family:inherit; font-size:0.92rem;"
+                    onmouseover="this.style.borderColor='#6C63FF';this.style.color='#a0a0ff'"
+                    onmouseout="this.style.borderColor='rgba(255,255,255,0.12)';this.style.color='#888'">← Go
+                    Back</button>
+                <button id="adminGateBtn" onclick="adminGateSubmit()"
+                    style="flex:1; padding:13px; border-radius:10px; background:linear-gradient(135deg,#6C63FF,#00D4AA); border:none; color:#fff; font-weight:700; cursor:pointer; font-family:inherit; font-size:0.92rem;"
+                    onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Unlock →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        var _UH = '12a03d4cf858050bd8b395617035f9d40a78ed9f6d2214304dff20a9913c65a9';
+        var _PH = 'e5e28dbffba05f13e4194a1101278b499e2bb6e7129b17b1b22297341a411e8a';
+
+        async function sha256(str) {
+            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function adminGateSubmit() {
+            var userInput = (document.getElementById('adminGateUser').value || '').trim();
+            var passInput = (document.getElementById('adminGateInput').value || '');
+            var err = document.getElementById('adminGateError');
+            var load = document.getElementById('adminGateLoading');
+            var btn = document.getElementById('adminGateBtn');
+
+            if (!userInput || !passInput) { err.style.display = 'block'; err.textContent = 'Please enter both username and password.'; return; }
+
+            err.style.display = 'none';
+            load.style.display = 'block';
+            btn.disabled = true;
+
+            try {
+                var uh = await sha256(userInput);
+                var ph = await sha256(passInput);
+                if (uh === _UH && ph === _PH) {
+                    sessionStorage.setItem('tsb_admin_auth', '1');
+                    document.getElementById('adminGate').style.display = 'none';
+                    document.getElementById('adminContent').style.display = 'block';
+                } else {
+                    load.style.display = 'none';
+                    err.textContent = 'Invalid username or password.';
+                    err.style.display = 'block';
+                    document.getElementById('adminGateInput').value = '';
+                    document.getElementById('adminGateInput').focus();
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                load.style.display = 'none';
+                err.textContent = 'Browser error. Please use a modern browser.';
+                err.style.display = 'block';
+                btn.disabled = false;
+            }
+        }
+
+        // ===== SESSION TIMEOUT & LOGOUT =====
+        let adminSessionTimer;
+        const ADMIN_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+
+        function adminLogout() {
+            sessionStorage.removeItem('tsb_admin_auth');
+            window.location.reload(); // Reloads to show the gate again
+        }
+
+        function resetAdminTimer() {
+            clearTimeout(adminSessionTimer);
+            if (sessionStorage.getItem('tsb_admin_auth') === '1') {
+                adminSessionTimer = setTimeout(() => {
+                    alert('Session expired due to inactivity. Please log in again.');
+                    adminLogout();
+                }, ADMIN_TIMEOUT_MS);
+            }
+        }
+
+        // Attach activity listeners
+        ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
+            document.addEventListener(evt, resetAdminTimer, { passive: true });
+        });
+
+        // Initialize timer
+        document.addEventListener('DOMContentLoaded', resetAdminTimer);
+    </script>
+
+    <div id="adminContent">
+        <div class="admin-container">
+            <div class="admin-header">
+                <div>
+                    <h1 class="gradient-text" style="font-size: 2rem;">Admin Dashboard</h1>
+                    <p class="text-secondary">Manage products, pricing, and details</p>
+                </div>
+                <div style="display: flex; gap: 16px; align-items: center;">
+                    <button onclick="exportForGithub()" class="btn btn--glass" style="font-size:0.85rem; padding:8px 16px; border-color:var(--accent-primary); color:var(--accent-primary);">
+                        Export for GitHub
+                    </button>
+                    <button class="btn btn--primary" id="addBtn" style="font-size:0.85rem; padding:8px 16px;">
+                        + Add Product
+                    </button>
+                    <button onclick="adminLogout()" class="btn btn--glass" style="font-size:0.85rem; padding:8px 16px; border-color:var(--accent-danger); color:var(--accent-danger);">
+                        Logout
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Image/Icon</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Price (৳)</th>
+                            <th>Original (৳)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminProductList">
+                        
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="modal" id="productModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Add Product</h2>
+                    <button class="btn--glass" id="closeModal" style="padding: 4px 8px; border-radius: 4px;">✕</button>
+                </div>
+                <form id="productForm">
+                    <input type="hidden" id="prodId">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" id="prodName" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="prodCategory" required>
+                                <option value="windows">Windows</option>
+                                <option value="office">Office</option>
+                                <option value="365">Office 365</option>
+                                <option value="project-visio">MS Project/Visio</option>
+                                <option value="vpn">VPN</option>
+                                <option value="google">Google</option>
+                                <option value="adobe">Adobe</option>
+                                <option value="autodesk">Autodesk</option>
+                                <option value="antivirus">Antivirus</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Badge (Optional)</label>
+                            <select id="prodBadge">
+                                <option value="">None</option>
+                                <option value="hot">Hot</option>
+                                <option value="new">New</option>
+                                <option value="sale">Sale</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Current Price (৳)</label>
+                            <input type="number" id="prodPrice" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Original Price (৳)</label>
+                            <input type="number" id="prodOriginalPrice">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Short Description (Text)</label>
+                        <textarea id="prodDesc" rows="2" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Long Description (HTML allowed)</label>
+                        <textarea id="prodLongDesc" rows="5" placeholder="<p>Buy genuine software...</p>"></textarea>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Image Path (e.g. img_content/file.png)</label>
+                            <input type="text" id="prodImage">
+                        </div>
+                        <div class="form-group">
+                            <label>Fallback Icon (Emoji)</label>
+                            <input type="text" id="prodIcon" value="📦">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Icon Background Color</label>
+                            <input type="text" id="prodColor" value="#6C63FF">
+                        </div>
+                        <div class="form-group">
+                            <label>Icon CSS Gradient</label>
+                            <input type="text" id="prodGradient" value="linear-gradient(135deg, #6C63FF, #00D4AA)">
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn--glass" id="cancelBtn">Cancel</button>
+                        <button type="submit" class="btn btn--primary">Save Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="toast" id="toast">
+            <div class="toast__icon">✓</div>
+            <div class="toast__message" id="toastMessage">Saved!</div>
+        </div>
+
+        <script src="script.js"></script>
+
+        <script>
+            // Export function to allow migrating localStorage changes to the hardcoded script.js file
+            window.exportForGithub = function() {
+                try {
+                    const saved = localStorage.getItem('tsbd-products');
+                    let productsToExport = defaultProducts; // fallback to global defaultProducts from script.js
+                    if (saved) {
+                        productsToExport = JSON.parse(saved);
+                    }
+                    const jsCode = "const defaultProducts = " + JSON.stringify(productsToExport, null, 4) + ";";
+                    navigator.clipboard.writeText(jsCode).then(() => {
+                        alert("Code Copied successfully!\n\nTo make your product changes public on GitHub Pages:\n1. Open your code editor.\n2. Go to script.js.\n3. Replace the entire 'const defaultProducts = [...]' block at the top with the code you just copied.\n4. Save, commit, and push to GitHub.");
+                    }).catch(err => {
+                        alert("Clipboard permission denied or unavailable. Check console for code.");
+                        console.log("EXPORTED CODE FOR SCRIPT.JS:\n", jsCode);
+                    });
+                } catch(e) {
+                    alert("Error exporting: " + e.message);
+                }
+            };
+
+            (() => {
+                // We no longer define a fallback defaultProducts array here.
+                // It automatically uses the global 24-product defaultProducts array defined in script.js
+
+                let adminProducts = [];
+
+                function loadProducts() {
+                    const saved = localStorage.getItem('tsbd-products');
+                    if (saved) {
+                        adminProducts = JSON.parse(saved);
+                        let updated = false;
+                        defaultProducts.forEach(dp => {
+                            if (!adminProducts.some(p => p.id === dp.id)) {
+                                adminProducts.push(dp);
+                                updated = true;
+                            }
+                        });
+                        if (updated) {
+                            localStorage.setItem('tsbd-products', JSON.stringify(adminProducts));
+                        }
+                    } else {
+                        adminProducts = [...defaultProducts]; // Fallback if user never visited index.html
+                    }
+                    renderTable();
+                }
+
+                function saveProducts() {
+                    localStorage.setItem('tsbd-products', JSON.stringify(adminProducts));
+                    renderTable();
+                    showToast('Products updated successfully!');
+                }
+
+                function renderTable() {
+                    const tbody = document.getElementById('adminProductList');
+                    tbody.innerHTML = adminProducts.map(p => `
+                <tr>
+                    <td>#${p.id}</td>
+                    <td>
+                        ${p.image ? `<img src="${p.image}" style="height:32px; object-fit:contain;" alt="img">` : `<span style="font-size:1.5rem">${p.icon}</span>`}
+                    </td>
+                    <td style="font-weight:600;">${p.name}
+                        ${p.badge ? `<span style="font-size:0.7rem; background:var(--accent-primary); color:white; padding:2px 6px; border-radius:4px; margin-left:8px;">${p.badge}</span>` : ''}
+                    </td>
+                    <td>${p.category}</td>
+                    <td style="color:var(--accent-secondary); font-weight:700;">৳${p.price}</td>
+                    <td style="color:var(--text-muted); text-decoration:line-through;">${p.originalPrice ? `৳${p.originalPrice}` : '-'}</td>
+                    <td class="action-btns">
+                        <button class="btn-edit" onclick="editProduct(${p.id})">Edit</button>
+                        <button class="btn-delete" onclick="deleteProduct(${p.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+                }
+
+                // Modal Logic
+                const modal = document.getElementById('productModal');
+                const form = document.getElementById('productForm');
+
+                document.getElementById('addBtn').onclick = () => {
+                    form.reset();
+                    document.getElementById('prodId').value = '';
+                    document.getElementById('modalTitle').textContent = 'Add Product';
+                    modal.classList.add('active');
+                };
+
+                const closeModals = () => modal.classList.remove('active');
+                document.getElementById('closeModal').onclick = closeModals;
+                document.getElementById('cancelBtn').onclick = closeModals;
+
+                form.onsubmit = (e) => {
+                    e.preventDefault();
+                    const idVal = document.getElementById('prodId').value;
+
+                    const prodData = {
+                        id: idVal ? parseInt(idVal) : Date.now(), // Generate new ID if empty
+                        name: document.getElementById('prodName').value,
+                        category: document.getElementById('prodCategory').value,
+                        badge: document.getElementById('prodBadge').value,
+                        price: parseInt(document.getElementById('prodPrice').value),
+                        originalPrice: parseInt(document.getElementById('prodOriginalPrice').value) || null,
+                        desc: document.getElementById('prodDesc').value,
+                        longDesc: document.getElementById('prodLongDesc').value,
+                        image: document.getElementById('prodImage').value,
+                        icon: document.getElementById('prodIcon').value,
+                        color: document.getElementById('prodColor').value,
+                        gradient: document.getElementById('prodGradient').value
+                    };
+
+                    if (idVal) {
+                        // Update existing
+                        const index = adminProducts.findIndex(p => p.id === parseInt(idVal));
+                        if (index !== -1) adminProducts[index] = prodData;
+                    } else {
+                        // Add new
+                        adminProducts.push(prodData);
+                    }
+
+                    saveProducts();
+                    closeModals();
+                };
+
+                window.editProduct = (id) => {
+                    const p = adminProducts.find(x => x.id === id);
+                    if (!p) return;
+
+                    document.getElementById('prodId').value = p.id;
+                    document.getElementById('prodName').value = p.name || '';
+                    document.getElementById('prodCategory').value = p.category || 'windows';
+                    document.getElementById('prodBadge').value = p.badge || '';
+                    document.getElementById('prodPrice').value = p.price || '';
+                    document.getElementById('prodOriginalPrice').value = p.originalPrice || '';
+                    document.getElementById('prodDesc').value = p.desc || '';
+                    document.getElementById('prodLongDesc').value = p.longDesc || '';
+                    document.getElementById('prodImage').value = p.image || '';
+                    document.getElementById('prodIcon').value = p.icon || '📦';
+                    document.getElementById('prodColor').value = p.color || '#6C63FF';
+                    document.getElementById('prodGradient').value = p.gradient || 'linear-gradient(135deg, #6C63FF, #00D4AA)';
+
+                    document.getElementById('modalTitle').textContent = 'Edit Product';
+                    modal.classList.add('active');
+                };
+
+                window.deleteProduct = (id) => {
+                    if (confirm('Are you sure you want to delete this product?')) {
+                        adminProducts = adminProducts.filter(p => p.id !== id);
+                        saveProducts();
+                    }
+                };
+
+                function showToast(message) {
+                    const toast = document.getElementById('toast');
+                    document.getElementById('toastMessage').textContent = message;
+                    toast.classList.add('active');
+                    setTimeout(() => toast.classList.remove('active'), 2500);
+                }
+
+                // Init
+                document.addEventListener('DOMContentLoaded', loadProducts);
+
+                // Set theme matching logic (reuse admin style)
+                document.documentElement.setAttribute('data-theme', 'dark');
+            })();
+        </script>
+    </div>
+</body>
+
+</html>
