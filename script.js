@@ -1668,7 +1668,7 @@ function initCheckoutModal() {
             `🔖 *TrxID:* ${trxId}\n\n` +
             `Please confirm my order. Thank you! 🙏`;
 
-        const waUrl = `https://wa.me/message/7ZV3N6YFBF5ED1?text=${encodeURIComponent(msg)}`;
+        const waUrl = `https://wa.me/66647109664?text=${encodeURIComponent(msg)}`;
 
         const waBtn = document.querySelector('#coStep4 .co-btn-whatsapp');
         if (waBtn) waBtn.href = waUrl;
