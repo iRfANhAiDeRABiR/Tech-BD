@@ -1451,7 +1451,7 @@ function initCheckoutModal() {
 
     const modalHTML = `
     <div id="checkoutModal" class="co-overlay" style="display:none;" aria-modal="true" role="dialog">
-        <div class="co-modal">
+        <div class="co-modal" style="background: var(--bg-secondary);">
             <button class="co-close" id="coCloseBtn" aria-label="Close">✕</button>
 
             <div class="co-progress">
@@ -1668,7 +1668,7 @@ function initCheckoutModal() {
             `🔖 *TrxID:* ${trxId}\n\n` +
             `Please confirm my order. Thank you! 🙏`;
 
-        const waUrl = `https://wa.me/message/7ZV3N6YFBF5ED1?text=${encodeURIComponent(msg)}`;
+        const waUrl = `https://wa.me/8801641699879?text=${encodeURIComponent(msg)}`;
 
         const waBtn = document.querySelector('#coStep4 .co-btn-whatsapp');
         if (waBtn) waBtn.href = waUrl;
